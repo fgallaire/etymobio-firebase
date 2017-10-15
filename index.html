@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<!--
+  Le site web Étymobio, version Firebase.
+  https://etymobio.fr
+
+  Copyright (C) 2016 Florent Gallaire <fgallaire@gmail.com>
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Affero General Public License for more details.
+-->
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <title>Étymobio</title>
+    <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
+    <script src="https://cdn.jsdelivr.net/vue/1.0.26/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/vue.router/0.7.13/vue-router.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/vuefire/1.1.0/vuefire.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <a v-link="{ path: '/' }"><h1>Étymobio</h1></a> 
+      <h2>L'étymologie de la biologie !</h2>
+      <router-view :mots=mots :racines=racines></router-view>
+      <a href="https://github.com/Etymobio/etymobio-base" target="_blank">Base de données</a> © 2016
+      <a href="https://twitter.com/lignedescience" target="_blank">Fabienne Gallaire</a>
+      <br/>
+      <a href="https://github.com/Etymobio/etymobio-site" target="_blank">Site web</a> © 2016
+      <a href="https://f.gallai.re" target="_blank">Florent Gallaire</a>
+    </div>
+    <script>
+
+var mots = new Firebase('https://etymobio.firebaseio.com/mots')
+var racines = new Firebase('https://etymobio.firebaseio.com/racines')
+
+var Root = Vue.extend({
+    props: ['mots', 'racines'],
+    template: '<a v-link="{ path: \'/mots\' }"><h3>Les mots :</h3></a>' +
+              '<liste-mots :mots=mots></liste-mots>' +
+              '<a v-link="{ path: \'/racines\' }"><h3>Les racines :</h3></a>' +
+              '<liste-racines :racines=racines></liste-racines>' 
+})
+
+var Mots = Vue.extend({
+    props: ['mots'],
+    template: '<h3>Les mots :</h3>' +
+              '<liste-mots :mots=mots></liste-mots>' +
+              '<a v-link="{ path: \'/racines\' }">Les racines</a>' +
+              '<br/>' +
+              '<br/>'
+})
+
+var ListeMots = Vue.extend({
+    props: ['mots'],
+    template: '<ul>' +
+                '<li v-for="mot in mots">' +
+                  '<a v-link="{ name: \'mot\', params: { mot: mot.nom }}">{{ mot.nom }}</a>' +
+                '</li>' +
+              '</ul>'
+})
+
+Vue.component('liste-mots', ListeMots)
+
+var Racines = Vue.extend({
+    props: ['racines'],
+    template: '<h3>Les racines :</h3>' +
+              '<liste-racines :racines=racines></liste-racines>' +
+              '<a v-link="{ path: \'/mots\' }">Les mots</a>' +
+              '<br/>' +
+              '<br/>'
+})
+
+var ListeRacines = Vue.extend({
+    props: ['racines'],
+    template: '<ul>' +
+                '<li v-for="racine in racines">' +
+                  '<a v-link="{ name: \'racine\', params: { racine: racine.nom }}">{{ racine.nom }}</a>' +
+                '</li>' +
+              '</ul>'
+})
+
+Vue.component('liste-racines', ListeRacines)
+
+var Mot = Vue.extend({
+    props: ['mots'],
+    template: '<div v-for="mot in mots">' +
+                '<div v-if="mot.nom === $route.params.mot">' +
+                  '<h3>Le mot {{ $route.params.mot }} a {{ mot.racines.length }} racine<a v-if="mot.racines.length > 1">s</a> :</h3>' +
+                  '<ul>' +
+                    '<li v-for="racine in mot.racines">' +
+                      '<a v-link="{ name: \'racine\', params: { racine: racine }}">{{ racine }}</a>' +
+                    '</li>' +
+                  '</ul>' +
+                '</div>' +
+              '</div>' +
+              '<a v-link="{ path: \'/mots\' }">Les mots</a>' +
+              '<br/>' +
+              '<br/>'
+})
+
+var Racine = Vue.extend({
+    props: ['racines'],
+    template: '<div v-for="racine in racines">' +
+                '<div v-if="racine.nom === $route.params.racine">' +
+                  '<h3>La racine {{ $route.params.racine }} :</h3>' +
+                  '<ul>' +
+                    '<li v-if="racine.langue">' +
+                      'Langue : {{ racine.langue }}' +
+                    '</li>' +
+                    '<li v-if="racine.signification">' +
+                      'Signification : {{ racine.signification }}' +
+                    '</li>' +
+                    '<li v-if="racine.categorie">' +
+                      'Catégorie : {{ racine.categorie }}' +
+                    '</li>' +
+                  '</ul>' +
+                '</div>' +
+              '</div>' +
+              '<a v-link="{ path: \'/racines\' }">Les racines</a>' +
+              '<br/>' +
+              '<br/>'
+})
+
+var E404 = Vue.extend({
+    template: "<p>Cette page n'existe pas</p>"
+})
+
+// !! Note that the App is not a Vue instance.
+var App = Vue.extend({
+    firebase: {
+        mots: mots,
+        racines: racines
+    }
+})
+
+Vue.use(VueRouter)
+
+var router = new VueRouter({ history: true })
+
+router.map({
+    '*': {
+        component: E404
+    },
+    '/': {
+        component: Root
+    },
+    '/mots': {
+        component: Mots
+    },
+    '/racines': {
+        component: Racines
+    },
+    '/mot/:mot': {
+        name: 'mot',
+        component: Mot
+    },
+    '/racine/:racine': {
+        name: 'racine',
+        component: Racine
+    }
+})
+
+router.start(App, '#app')
+
+    </script>
+  </body>
+</html>

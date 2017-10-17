@@ -147,7 +147,7 @@ var E404 = Vue.extend({
 })
 
 // Set { mode: 'history' } for history mode when using a server
-var router = new VueRouter({ mode: 'hash', routes: [
+var router = new VueRouter({ mode: 'history', routes: [
     { path: '*', component: E404 },
     { path: '/', component: Root },
     { path: '/mots', component: Mots },

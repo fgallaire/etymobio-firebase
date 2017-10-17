@@ -18,8 +18,26 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8">
-    <title>Étymobio</title>
+    <title>Étymobio Test</title>
     <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/2.4.0/firebase-ui-auth__fr.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/2.4.0/firebase-ui-auth.css" />
+  <script src="https://code.jquery.com/jquery-1.11.2.js"></script>
+  <script>
+    $(function() {
+      $("#login").on("click", function(e) {
+        e.preventDefault();
+        var authenticator = new netlify.default ({});
+        authenticator.authenticate({provider:"github", scope: "user"}, function(err, data) {
+          if (err) {
+            return $("#output").text("Error Authenticating with GitHub: " + err);
+          }
+          $("#output").text("Authenticated with GitHub. Access Token: " + data.token);
+        });
+      });
+    });
+  </script>
+  <script src="https://unpkg.com/netlify-auth-providers"></script>
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script src="https://unpkg.com/vuefire/dist/vuefire.js"></script>
@@ -142,6 +160,14 @@ var Racine = Vue.extend({
               '</div>'
 })
 
+var Admin = Vue.extend({
+    template: '<div>' +
+              '<h2>GitHub Auth:</h2>' +
+              '<p><a href="#" id="login">Authenticate</a></p>' +
+              '<p id="output"></p>' +
+              '</div>'
+})
+
 var E404 = Vue.extend({
     template: "<p>Cette page n'existe pas</p>"
 })
@@ -153,7 +179,8 @@ var router = new VueRouter({ mode: 'history', routes: [
     { path: '/mots', component: Mots },
     { path: '/racines', component: Racines },
     { path: '/mot/:mot', name: 'mot', component: Mot },
-    { path: '/racine/:racine', name: 'racine', component: Racine }
+    { path: '/racine/:racine', name: 'racine', component: Racine },
+    { path: '/admin', component: Admin }
     ]
 })
 

@@ -142,7 +142,8 @@ var App = Vue.extend({
 
 Vue.use(VueRouter)
 
-var router = new VueRouter({ history: true })
+// Set { history: true } for history mode when using a server
+var router = new VueRouter({ history: false })
 
 router.map({
     '*': {

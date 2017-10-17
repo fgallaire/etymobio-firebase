@@ -20,13 +20,13 @@
     <meta charset="utf-8">
     <title>Étymobio</title>
     <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
-    <script src="https://cdn.jsdelivr.net/vue/1.0.26/vue.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/vue.router/0.7.13/vue-router.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/vuefire/1.1.0/vuefire.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/vuefire/dist/vuefire.js"></script>
   </head>
   <body>
     <div id="app">
-      <a v-link="{ path: '/' }"><h1>Étymobio</h1></a> 
+      <h1><router-link :to="{ path: '/' }">Étymobio</router-link></h1>
       <h2>L'étymologie de la biologie !</h2>
       <router-view :mots=mots :racines=racines></router-view>
       <a href="https://github.com/Etymobio/etymobio-base" target="_blank">Base de données</a> © 2016
@@ -42,72 +42,85 @@ var racines = new Firebase('https://etymobio.firebaseio.com/racines')
 
 var Root = Vue.extend({
     props: ['mots', 'racines'],
-    template: '<a v-link="{ path: \'/mots\' }"><h3>Les mots :</h3></a>' +
+    template: '<div>' +
+              '<router-link :to="{ path: \'/mots\' }"><h3>Les mots :</h3></router-link>' +
               '<liste-mots :mots=mots></liste-mots>' +
-              '<a v-link="{ path: \'/racines\' }"><h3>Les racines :</h3></a>' +
-              '<liste-racines :racines=racines></liste-racines>' 
+              '<router-link :to="{ path: \'/racines\' }"><h3>Les racines :</h3></router-link>' +
+              '<liste-racines :racines=racines></liste-racines>' +
+              '</div>'
 })
 
 var Mots = Vue.extend({
     props: ['mots'],
-    template: '<h3>Les mots :</h3>' +
+    template: '<div>' +
+              '<h3>Les mots :</h3>' +
               '<liste-mots :mots=mots></liste-mots>' +
-              '<a v-link="{ path: \'/racines\' }">Les racines</a>' +
+              '<router-link :to="{ path: \'/racines\' }">Les racines</router-link>' +
               '<br/>' +
-              '<br/>'
+              '<br/>' +
+              '</div>'
 })
 
 var ListeMots = Vue.extend({
     props: ['mots'],
-    template: '<ul>' +
+    template: '<div>' +
+              '<ul>' +
                 '<li v-for="mot in mots">' +
-                  '<a v-link="{ name: \'mot\', params: { mot: mot.nom }}">{{ mot.nom }}</a>' +
+                  '<router-link :to="{ name: \'mot\', params: { mot: mot.nom }}">{{ mot.nom }}</router-link>' +
                 '</li>' +
-              '</ul>'
+              '</ul>' +
+              '</div>'
 })
 
 Vue.component('liste-mots', ListeMots)
 
 var Racines = Vue.extend({
     props: ['racines'],
-    template: '<h3>Les racines :</h3>' +
+    template: '<div>' +
+              '<h3>Les racines :</h3>' +
               '<liste-racines :racines=racines></liste-racines>' +
-              '<a v-link="{ path: \'/mots\' }">Les mots</a>' +
+              '<router-link :to="{ path: \'/mots\' }">Les mots</router-link>' +
               '<br/>' +
-              '<br/>'
+              '<br/>' +
+              '</div>'
 })
 
 var ListeRacines = Vue.extend({
     props: ['racines'],
-    template: '<ul>' +
+    template: '<div>' +
+              '<ul>' +
                 '<li v-for="racine in racines">' +
-                  '<a v-link="{ name: \'racine\', params: { racine: racine.nom }}">{{ racine.nom }}</a>' +
+                  '<router-link :to="{ name: \'racine\', params: { racine: racine.nom }}">{{ racine.nom }}</router-link>' +
                 '</li>' +
-              '</ul>'
+              '</ul>' +
+              '</div>'
 })
 
 Vue.component('liste-racines', ListeRacines)
 
 var Mot = Vue.extend({
     props: ['mots'],
-    template: '<div v-for="mot in mots">' +
+    template: '<div>' +
+              '<div v-for="mot in mots">' +
                 '<div v-if="mot.nom === $route.params.mot">' +
                   '<h3>Le mot {{ $route.params.mot }} a {{ mot.racines.length }} racine<a v-if="mot.racines.length > 1">s</a> :</h3>' +
                   '<ul>' +
                     '<li v-for="racine in mot.racines">' +
-                      '<a v-link="{ name: \'racine\', params: { racine: racine }}">{{ racine }}</a>' +
+                      '<router-link :to="{ name: \'racine\', params: { racine: racine }}">{{ racine }}</router-link>' +
                     '</li>' +
                   '</ul>' +
                 '</div>' +
               '</div>' +
-              '<a v-link="{ path: \'/mots\' }">Les mots</a>' +
+              '<router-link :to="{ path: \'/mots\' }">Les mots</router-link>' +
               '<br/>' +
-              '<br/>'
+              '<br/>' +
+              '</div>'
 })
 
 var Racine = Vue.extend({
     props: ['racines'],
-    template: '<div v-for="racine in racines">' +
+    template: '<div>' +
+              '<div v-for="racine in racines">' +
                 '<div v-if="racine.nom === $route.params.racine">' +
                   '<h3>La racine {{ $route.params.racine }} :</h3>' +
                   '<ul>' +
@@ -123,52 +136,35 @@ var Racine = Vue.extend({
                   '</ul>' +
                 '</div>' +
               '</div>' +
-              '<a v-link="{ path: \'/racines\' }">Les racines</a>' +
+              '<router-link :to="{ path: \'/racines\' }">Les racines</router-link>' +
               '<br/>' +
-              '<br/>'
+              '<br/>' +
+              '</div>'
 })
 
 var E404 = Vue.extend({
     template: "<p>Cette page n'existe pas</p>"
 })
 
-// !! Note that the App is not a Vue instance.
-var App = Vue.extend({
+// Set { mode: 'history' } for history mode when using a server
+var router = new VueRouter({ mode: 'hash', routes: [
+    { path: '*', component: E404 },
+    { path: '/', component: Root },
+    { path: '/mots', component: Mots },
+    { path: '/racines', component: Racines },
+    { path: '/mot/:mot', name: 'mot', component: Mot },
+    { path: '/racine/:racine', name: 'racine', component: Racine }
+    ]
+})
+
+new Vue({
+    el: '#app',
+    router: router,
     firebase: {
         mots: mots,
         racines: racines
     }
 })
-
-Vue.use(VueRouter)
-
-// Set { history: true } for history mode when using a server
-var router = new VueRouter({ history: false })
-
-router.map({
-    '*': {
-        component: E404
-    },
-    '/': {
-        component: Root
-    },
-    '/mots': {
-        component: Mots
-    },
-    '/racines': {
-        component: Racines
-    },
-    '/mot/:mot': {
-        name: 'mot',
-        component: Mot
-    },
-    '/racine/:racine': {
-        name: 'racine',
-        component: Racine
-    }
-})
-
-router.start(App, '#app')
 
     </script>
   </body>
